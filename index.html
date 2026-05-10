@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ============================================================
+       VYK EDITZ — Premium Cinematic Portfolio
+       Author: Vinayak Dalbanjan
+       ============================================================ -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="VYK EDITZ — Video Editor & Motion Graphics Designer crafting cinematic visuals." />
+    <title>VYK STUDIOS — Portfolio</title>
+
+    <!-- Google Fonts: Cormorant Garamond (display) + Outfit (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=Outfit:wght@200;300;400;500;600&display=swap"
+        rel="stylesheet" />
+
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ============================================================
+       CUSTOM CURSOR
+       ============================================================ -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="cursorFollower"></div>
+
+    <!-- ============================================================
+       NAVIGATION BAR
+       ============================================================ -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-inner">
+            <!-- Brand Logo -->
+            <a href="#" class="nav-logo">VYK<span>STUDIOS</span></a>
+
+            <!-- Desktop Links -->
+            <ul class="nav-links">
+                <li><a href="#portfolio">Work</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#services">Services</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+
+            <!-- Theme Toggle -->
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+                <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                <svg class="system-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            </button>
+
+            <!-- CTA Button -->
+            <a href="#contact" class="nav-cta">Hire Me</a>
+
+            <!-- Mobile Hamburger -->
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div class="mobile-menu" id="mobileMenu">
+            <ul>
+                <li><a href="#portfolio" class="mobile-link">Work</a></li>
+                <li><a href="#about" class="mobile-link">About</a></li>
+                <li><a href="#services" class="mobile-link">Services</a></li>
+                <li><a href="#contact" class="mobile-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ============================================================
+       HERO SECTION
+       ============================================================ -->
+    <section class="hero" id="hero">
+        <!-- Ambient floating orbs (CSS-animated) -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+
+        <!-- Main hero card (large rounded container) -->
+        <div class="hero-card reveal">
+            <!-- Floating badge top-left -->
+            <div class="hero-badge">
+                <span class="badge-dot"></span>
+                Available for work
+            </div>
+
+            <!-- Profile avatar placeholder -->
+            <div class="hero-avatar">
+                <div class="avatar-ring"></div>
+                <div class="avatar-inner">
+                    <!-- Initials fallback if no image -->
+                    <span class="avatar-initials">VYK</span>
+                    <!-- Uncomment and replace src when you have a real photo -->
+                    <!-- <img src="assets/images/profile.jpg" alt="Vinayak Dalbanjan" /> -->
+                </div>
+            </div>
+
+            <!-- Hero Text -->
+            <div class="hero-text">
+                <p class="hero-role">Video Editor &amp; Motion Graphics Designer</p>
+                <h1 class="hero-title">
+                    Crafting <em>Cinematic</em><br />
+                    Visuals That<br />
+                    <span class="title-highlight">Demand Attention.</span>
+                </h1>
+                <p class="hero-sub">
+                    Creating cinematic visuals that capture attention and drive engagement.
+                </p>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="hero-actions">
+                <a href="#portfolio" class="btn-primary">
+                    <span>View Work</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="#contact" class="btn-ghost">Let's Talk</a>
+            </div>
+
+            <!-- Floating stat pills -->
+            <div class="hero-stats">
+                <div class="stat-pill">
+                    <strong>4+</strong>
+                    <span>Years AE</span>
+                </div>
+                <div class="stat-pill">
+                    <strong>50+</strong>
+                    <span>Projects</span>
+                </div>
+                <div class="stat-pill">
+                    <strong>∞</strong>
+                    <span>Creativity</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll indicator -->
+        <div class="scroll-hint">
+            <div class="scroll-line"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
+
+    <!-- ============================================================
+       TRUST / BRANDS STRIP
+       ============================================================ -->
+    <section class="brands-section reveal">
+        <div class="container">
+            <div class="brands-card">
+                <p class="brands-label">Trusted by creators &amp; brands across</p>
+                <!-- Marquee scrolling logos -->
+                <div class="brands-track-wrapper">
+                    <div class="brands-track">
+                        <!-- Repeat logos twice for seamless loop -->
+                        <span class="brand-item">YouTube</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">Instagram</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">TikTok</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">YouTube</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">Instagram</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">TikTok</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">YouTube</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">Instagram</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">TikTok</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">YouTube</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">Instagram</span>
+                        <span class="brand-divider">·</span>
+                        <span class="brand-item">TikTok</span>
+                        <span class="brand-divider">·</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+       PORTFOLIO SECTION
+       ============================================================ -->
+    <section class="portfolio" id="portfolio">
+        <div class="container">
+
+            <!-- Section header -->
+            <div class="section-header reveal">
+                <p class="section-eyebrow">Selected Work</p>
+                <h2 class="section-title">Portfolio</h2>
+                <p class="section-desc">A curated selection of motion work, edits, and cinematic storytelling.</p>
+            </div>
+
+            <!-- ——————————————————————————
+           SUB-SECTION: Motion Graphics
+           —————————————————————————— -->
+            <div class="portfolio-block reveal">
+                <div class="portfolio-block-header">
+                    <div class="block-label">
+                        <span class="block-icon">🔥</span>
+                        <h3>Motion Graphics</h3>
+                    </div>
+                    <p class="block-desc">Advance motion graphic videos</p>
+                </div>
+
+                <div class="video-grid video-grid-3">
+                    <!-- Video Card 1 -->
+                    <div class="video-card">
+                        <div class="video-wrap">
+                            <video src="assets/videos/5 youtube channels video for port.mp4" loop preload="metadata" 
+                            poster="assets/images/1st.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <!-- Placeholder overlay (shows when no video file present) -->
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">VSL Video</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Card 2 -->
+                    <div class="video-card">
+                        <div class="video-wrap">
+                            <video src="assets/videos/Instagram Apple UI 04.mp4" loop preload="metadata"
+                                poster="assets/images/insta.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">3D Logo Reveal</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Card 3 -->
+                    <div class="video-card">
+                        <div class="video-wrap">
+                            <video src="assets/videos/1-3rd-video.mp4"
+                            loop
+                            preload="metadata"
+                                poster="assets/images/saas.jpg">
+                                Your browser does not support video.
+                            </video>
+                           <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div> 
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">SaaS Style</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ——————————————————————————
+           SUB-SECTION: Popular Edits
+           —————————————————————————— -->
+            <div class="portfolio-block reveal">
+                <div class="portfolio-block-header">
+                    <div class="block-label">
+                        <span class="block-icon">✨</span>
+                        <h3>Popular Edits</h3>
+                    </div>
+                    <p class="block-desc">High-impact cuts that perform across every platform.</p>
+                </div>
+
+                <div class="video-grid video-grid-3">
+                    <!-- Video Card 1 -->
+                    <div class="video-card">
+                        <div class="video-wrap">
+                            <video src="assets/videos/WONDERLAND 02 topaz (1).mov" loop preload="metadata"
+                                poster="assets/images/mograph.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">Mograph Edits</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Card 2 -->
+                    <div class="video-card">
+                        <div class="video-wrap">
+                            <video src="assets/videos/Gwen Peter Strangers YT Topaz.mov" loop preload="metadata"
+                                poster="assets/images/kiss.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">Jugg style edit</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <!-- Video Card 3 -->
+                    <!--<div class="video-card">
+            <div class="video-wrap">
+              <video src="assets/videos/edit3.mp4" controls preload="none" poster="assets/images/thumb-edit3.jpg">
+                Your browser does not support video.
+              </video>
+              <div class="video-placeholder" aria-hidden="true">
+                <div class="play-icon">▶</div>
+                <span>Popular Edit 03</span>
+              </div>
+            </div>
+            <div class="video-meta">
+              <p class="video-title">Brand Commercial</p>
+              <span class="video-tag">Premiere Pro + AE</span>
+            </div>
+          </div>-->
+                </div>
+            </div>
+
+            <!-- ——————————————————————————
+           SUB-SECTION: Content Creators (9:16 vertical)
+           —————————————————————————— -->
+            <div class="portfolio-block reveal">
+                <div class="portfolio-block-header">
+                    <div class="block-label">
+                        <span class="block-icon">👀</span>
+                        <h3>Short form videos</h3>
+                    </div>
+                    <p class="block-desc">Vertical-first short-form content built for viral reach.</p>
+                </div>
+
+                <!-- Vertical video grid -->
+                <div class="video-grid video-grid-vertical">
+                    <div class="video-card video-card-vertical">
+                        <div class="video-wrap vertical-wrap">
+                            <video src="assets/videos/Reel 5.mp4" loop preload="metadata"
+                                poster="assets/images/talkingreel.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">Talking Face Motion Graphics</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <div class="video-card video-card-vertical">
+                        <div class="video-wrap vertical-wrap">
+                            <video src="assets/videos/Apple UI 03.mp4" loop preload="metadata"
+                                poster="assets/images/iphone.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span></span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">Apple Style Animation</p>
+                            <span class="video-tag">After Effects</span>
+                        </div>
+                    </div>
+
+                    <!--<div class="video-card video-card-vertical">
+            <div class="video-wrap vertical-wrap">
+              <video src="assets/videos/reel3.mp4" controls preload="none" poster="assets/images/thumb-reel3.jpg">
+                Your browser does not support video.
+              </video>
+              <div class="video-placeholder" aria-hidden="true">
+                <div class="play-icon">▶</div>
+                <span>Reel 03</span>
+              </div>
+            </div>
+            <div class="video-meta">
+              <p class="video-title">TikTok — Fitness Brand</p>
+              <span class="video-tag">9:16 Format</span>
+            </div>
+          </div> -->
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+            <!-- ——————————————————————————
+           SUB-SECTION: Long Form Videos
+           —————————————————————————— -->
+            <!--<div class="portfolio-block reveal">
+                <div class="portfolio-block-header">
+                    <div class="block-label">
+                        <span class="block-icon">🎞</span>
+                        <h3>Long Form Videos</h3>
+                    </div>
+                    <p class="block-desc">Funny-style edits with cinematic depth and narrative flow.</p>
+                </div>
+
+                <div class="video-grid video-grid-2">
+                    <div class="video-card video-card-wide">
+                        <div class="video-wrap">
+                            <video src="assets/videos/longform1.mp4" controls preload="none"
+                                poster="assets/images/thumb-long1.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span>Long Form 01</span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">IRL Video</p>
+                            <span class="video-tag">DaVinci Resolve</span>
+                        </div>
+                    </div>
+
+                    <div class="video-card video-card-wide">
+                        <div class="video-wrap">
+                            <video src="assets/videos/longform2.mp4" controls preload="none"
+                                poster="assets/images/thumb-long2.jpg">
+                                Your browser does not support video.
+                            </video>
+                            <div class="video-placeholder" aria-hidden="true">
+                                <div class="play-icon">▶</div>
+                                <span>Long Form 02</span>
+                            </div>
+                        </div>
+                        <div class="video-meta">
+                            <p class="video-title">Intro</p>
+                            <span class="video-tag">Premiere Pro</span>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
+
+            <!-- ============================================================
+       ABOUT SECTION
+       ============================================================ -->
+            <section class="about" id="about">
+                <div class="container">
+                    <div class="about-card reveal">
+
+                        <!-- Left column: text -->
+                        <div class="about-text">
+                            <p class="section-eyebrow">About Me</p>
+                            <h2 class="about-name">Vinayak<br /><em>Dalbanjan</em></h2>
+                            <p class="about-para">
+                                Focused on cinematic storytelling, premium visuals, and viral content creation.
+                                I turn raw footage into polished narratives — whether it's a 15-second reel
+                                or a full-length documentary.
+                            </p>
+                            <p class="about-para">
+                                Every frame is intentional. Every cut, deliberate. That's the VYK standard.
+                            </p>
+
+                            <!-- Tool badges -->
+                            <div class="tools-row">
+                                <div class="tool-badge">
+                                    <span class="tool-icon">⬡</span>
+                                    <div>
+                                        <strong>After Effects</strong>
+                                        <span>3+ years</span>
+                                    </div>
+                                </div>
+                                <div class="tool-badge">
+                                    <span class="tool-icon">▶</span>
+                                    <div>
+                                        <strong>Premiere Pro</strong>
+                                        <span>3+ years</span>
+                                    </div>
+                                </div>
+                                <div class="tool-badge">
+                                    <span class="tool-icon">◈</span>
+                                    <div>
+                                        <strong>DaVinci Resolve</strong>
+                                        <span>2+ years</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right column: decorative card -->
+                        <div class="about-visual">
+                            <div class="about-img-card">
+                                <!-- Profile image placeholder — replace src with real image -->
+                                <div class="about-img-placeholder">
+                                    <img src="assets/images/6053051256441344877.jpg" alt="Vinayak Dalbanjan">
+                                </div>
+                                <!-- Floating experience pill -->
+                                <div class="exp-pill">
+                                    <strong>4+</strong>
+                                    <span>Years of<br />Experience</span>
+                                </div>
+                                <!-- Floating projects pill -->
+                                <div class="proj-pill">
+                                    <strong>50+</strong>
+                                    <span>Projects<br />Delivered</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+       SERVICES / SKILLS SECTION
+       ============================================================ -->
+            <section class="services" id="services">
+                <div class="container">
+                    <div class="section-header reveal">
+                        <p class="section-eyebrow">What I Do</p>
+                        <h2 class="section-title">Services</h2>
+                        <p class="section-desc">End-to-end post-production — from rough cut to final delivery.</p>
+                    </div>
+
+                    <!-- 2×2 service card grid -->
+                    <div class="services-grid reveal">
+
+                        <div class="service-card">
+                            <div class="service-icon-wrap">
+                                <span class="service-icon">✦</span>
+                            </div>
+                            <h3 class="service-title">Motion Graphics</h3>
+                            <p class="service-desc">
+                                Kinetic typography, logo reveals, animated infographics,VSL videos and custom transitions
+                                that make every second count.
+                            </p>
+                            <div class="service-tags">
+                                <span>After Effects</span>
+                            </div>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon-wrap">
+                                <span class="service-icon">⚡</span>
+                            </div>
+                            <h3 class="service-title">Short Form Editing</h3>
+                            <p class="service-desc">
+                                Instagram Reels, YouTube Shorts, and TikToks engineered for maximum retention
+                                and virality.
+                            </p>
+                            <div class="service-tags">
+                                <span>Premiere Pro</span>
+                                <span>9:16 Format</span>
+                            </div>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon-wrap">
+                                <span class="service-icon">▤</span>
+                            </div>
+                            <h3 class="service-title">Long Form Editing</h3>
+                            <p class="service-desc">
+                                Documentary cuts, vlogs, and brand films with structured narrative arcs,
+                                colour grades, and immersive sound design.
+                            </p>
+                            <div class="service-tags">
+                                <span>DaVinci Resolve</span>
+                                <span>Premiere Pro</span>
+                            </div>
+                        </div>
+
+                        <div class="service-card">
+                            <div class="service-icon-wrap">
+                                <span class="service-icon">◈</span>
+                            </div>
+                            <h3 class="service-title">Cinematic Edits</h3>
+                            <p class="service-desc">
+                                Film-grade colour grading, anamorphic looks, and cinematic LUTs applied
+                                to elevate any footage to premium visual standards.
+                            </p>
+                            <div class="service-tags">
+                                <span>Adobe After Effects</span>
+                                <span>Color Grading</span>
+                                <span>LUTs</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+       CTA / CONTACT SECTION
+       ============================================================ -->
+            <section class="cta-section" id="contact">
+                <div class="container">
+                    <div class="cta-card reveal">
+                        <!-- Decorative glow blob inside card -->
+                        <div class="cta-glow"></div>
+
+                        <p class="section-eyebrow light-eyebrow">Ready to create?</p>
+                        <h2 class="cta-title">Let's create your<br /><em>next viral video</em></h2>
+                        <p class="cta-sub">
+                            Drop a message and let's turn your vision into something unforgettable.
+                        </p>
+
+                        <!-- Contact buttons -->
+                        <div class="cta-actions">
+                            <a href="mailto:vykeditz@gmail.com" class="cta-btn cta-btn-email">
+                                <!-- Email icon -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="1.8">
+                                    <rect x="2" y="4" width="20" height="16" rx="3" />
+                                    <path d="m2 7 10 7 10-7" />
+                                </svg>
+                                Email Me
+                            </a>
+                            <a href="https://wa.me/qr/HNPYIVXAXV7GK1" target="_blank" rel="noopener"
+                                class="cta-btn cta-btn-whatsapp">
+                                <!-- WhatsApp icon -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path
+                                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                </svg>
+                                WhatsApp
+                            </a>
+                        </div>
+
+                        <!-- Floating decorative element -->
+                        <div class="cta-decoration">
+                            <span>VYK</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================
+       FOOTER
+       ============================================================ -->
+            <footer class="footer">
+                <div class="container">
+                    <div class="footer-inner">
+                        <!-- Brand -->
+                        <a href="#" class="footer-logo">VYK<span>EDITZ</span></a>
+
+                        <!-- Footer Nav -->
+                        <ul class="footer-links">
+                            <li><a href="#portfolio">Work</a></li>
+                            <li><a href="#about">About</a></li>
+                            <li><a href="#services">Services</a></li>
+                            <li><a href="#contact">Contact</a></li>
+                        </ul>
+
+                        <!-- Copyright -->
+                        <p class="footer-copy">© 2026 VYK EDITZ. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Main Script -->
+            <script src="script.js"></script>
+</body>
+
+</html>
