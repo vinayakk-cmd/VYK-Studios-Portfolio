@@ -52,34 +52,61 @@ function initNavbar() {
    —————————————————————————————————————————— */
 function initTheme() {
     const themeToggle = document.getElementById('themeToggle');
-    if (!themeToggle) return;
+    const themeIcon = document.getElementById('themeIcon');
+    if (!themeToggle || !themeIcon) return;
 
-    const getPreferredTheme = () => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) return savedTheme;
-        return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    const themes = ['current', 'dark', 'light'];
+    
+    // SVG Icons
+    const icons = {
+        current: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2.163c3.202 0 5.8 2.598 5.8 5.8 0 1.25-.4 2.45-1.125 3.425-.625.85-1.575 1.4-2.525 1.55-.425.075-.85.125-1.3.125h-.625c-.2 0-.375.175-.375.375v.625c0 .425.175.825.5 1.125.325.325.525.75.525 1.2 0 .975-.8 1.775-1.775 1.775-4.4 0-8-3.6-8-8 0-4.4 3.6-8 8-8z" />
+                    <circle cx="9" cy="9" r="1.5" fill="currentColor" />
+                    <circle cx="12" cy="6" r="1.5" fill="currentColor" />
+                    <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor" />
+                  </svg>`,
+        dark: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+               </svg>`,
+        light: `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+                </svg>`
     };
 
-    const setTheme = (theme) => {
-        document.documentElement.setAttribute('data-theme', theme);
+    const getStoredTheme = () => {
+        const savedTheme = localStorage.getItem('theme');
+        if (themes.includes(savedTheme)) return savedTheme;
+        return 'current';
+    };
+
+    const applyTheme = (theme) => {
+        if (theme === 'current') {
+            document.documentElement.removeAttribute('data-theme');
+        } else {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
         localStorage.setItem('theme', theme);
+        updateThemeButton(theme);
+    };
+
+    const updateThemeButton = (theme) => {
+        themeIcon.innerHTML = icons[theme];
+        const title = theme.charAt(0).toUpperCase() + theme.slice(1);
+        themeToggle.setAttribute('title', `Theme: ${title}`);
+    };
+
+    const cycleTheme = () => {
+        let currentTheme = getStoredTheme();
+        let idx = themes.indexOf(currentTheme);
+        let nextTheme = themes[(idx + 1) % themes.length];
+        applyTheme(nextTheme);
     };
 
     // Initial apply
-    setTheme(getPreferredTheme());
+    applyTheme(getStoredTheme());
 
-    themeToggle.addEventListener('click', () => {
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        setTheme(nextTheme);
-    });
-
-    // Listen for system changes
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
-        if (!localStorage.getItem('theme')) {
-            setTheme(e.matches ? 'light' : 'dark');
-        }
-    });
+    themeToggle.addEventListener('click', cycleTheme);
 }
 
 
@@ -89,7 +116,7 @@ function initTheme() {
    —————————————————————————————————————————— */
 function initMobileMenu() {
 
-    const hamburger  = document.getElementById('hamburger');
+    const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
     if (!hamburger || !mobileMenu) return;
 
@@ -222,16 +249,16 @@ function initHoverEffects() {
     document.querySelectorAll('.service-card').forEach((card) => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
-            const dx = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2);
-            const dy = (e.clientY - rect.top  - rect.height / 2) / (rect.height / 2);
+            const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
+            const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
 
             card.style.transition = 'transform 0.1s linear, box-shadow 0.4s ease';
-            card.style.transform  = `translateY(-8px) rotateX(${-dy * 8}deg) rotateY(${dx * 8}deg)`;
+            card.style.transform = `translateY(-8px) rotateX(${-dy * 8}deg) rotateY(${dx * 8}deg)`;
         });
 
         card.addEventListener('mouseleave', () => {
             card.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease';
-            card.style.transform  = 'translateY(0) rotateX(0) rotateY(0)';
+            card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
         });
     });
 
@@ -252,8 +279,8 @@ function initHoverEffects() {
     if (hero && orbs.length) {
         hero.addEventListener('mousemove', (e) => {
             const rect = hero.getBoundingClientRect();
-            const mx = (e.clientX - rect.left)  / rect.width  - 0.5;
-            const my = (e.clientY - rect.top)   / rect.height - 0.5;
+            const mx = (e.clientX - rect.left) / rect.width - 0.5;
+            const my = (e.clientY - rect.top) / rect.height - 0.5;
 
             orbs.forEach((orb, i) => {
                 const depth = (i + 1) * 18;
@@ -264,7 +291,7 @@ function initHoverEffects() {
         hero.addEventListener('mouseleave', () => {
             orbs.forEach((orb) => {
                 orb.style.transition = 'transform 0.8s ease';
-                orb.style.transform  = '';
+                orb.style.transform = '';
                 setTimeout(() => { orb.style.transition = ''; }, 800);
             });
         });
@@ -274,15 +301,15 @@ function initHoverEffects() {
     document.querySelectorAll('.video-card').forEach((card) => {
         card.addEventListener('mousemove', (e) => {
             const rect = card.getBoundingClientRect();
-            const dx = (e.clientX - rect.left - rect.width  / 2) / (rect.width  / 2);
+            const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
 
             card.style.transition = 'transform 0.1s linear, box-shadow 0.4s ease';
-            card.style.transform  = `translateY(-6px) translateX(${dx * 4}px) scale(1.01)`;
+            card.style.transform = `translateY(-6px) translateX(${dx * 4}px) scale(1.01)`;
         });
 
         card.addEventListener('mouseleave', () => {
             card.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s ease';
-            card.style.transform  = '';
+            card.style.transform = '';
         });
     });
 }
@@ -299,15 +326,15 @@ function initScrollProgress() {
     bar.setAttribute('aria-hidden', 'true');
 
     Object.assign(bar.style, {
-        position:       'fixed',
-        top:            '0',
-        left:           '0',
-        height:         '2px',
-        width:          '0%',
-        background:     'linear-gradient(to right, #c8a96e, #d4b87a)',
-        zIndex:         '10001',
-        transition:     'width 0.1s linear',
-        pointerEvents:  'none',
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        height: '2px',
+        width: '0%',
+        background: 'linear-gradient(to right, #c8a96e, #d4b87a)',
+        zIndex: '10001',
+        transition: 'width 0.1s linear',
+        pointerEvents: 'none',
     });
 
     document.body.appendChild(bar);
