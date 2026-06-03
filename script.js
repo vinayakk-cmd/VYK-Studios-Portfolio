@@ -24,7 +24,7 @@ function initNavbar() {
 
 /* ── Mobile menu ── */
 function initMobileMenu() {
-  const btn  = document.getElementById('hamburger');
+  const btn = document.getElementById('hamburger');
   const menu = document.getElementById('mobileMenu');
   if (!btn || !menu) return;
 
@@ -79,21 +79,21 @@ function initVideoGrid() {
   const ICON_SOUND = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
 
   document.querySelectorAll('.vwrap').forEach(wrap => {
-    const video   = wrap.querySelector('video');
+    const video = wrap.querySelector('video');
     const overlay = wrap.querySelector('.voverlay');
     if (!video) return;
 
     /* Ensure starts muted */
     video.muted = true;
-    video.loop  = true;
+    video.loop = true;
     video.playsInline = true;
-    video.play().catch(() => {});
+    video.play().catch(() => { });
 
     /* --- Inject mute button --- */
     const btn = document.createElement('button');
-    btn.className   = 'mute-btn';
+    btn.className = 'mute-btn';
     btn.setAttribute('aria-label', 'Toggle mute');
-    btn.innerHTML   = ICON_MUTED;   /* starts muted */
+    btn.innerHTML = ICON_MUTED;   /* starts muted */
     wrap.appendChild(btn);
 
     /* Toggle mute on button click (stop event reaching vwrap) */
@@ -124,14 +124,14 @@ function initVideoGrid() {
     });
 
     video.addEventListener('pause', () => { overlay.style.opacity = '1'; });
-    video.addEventListener('play',  () => { overlay.style.opacity = '0'; });
+    video.addEventListener('play', () => { overlay.style.opacity = '0'; });
   });
 }
 
 /* ── Feature list accordion ── */
 function initFeatureList() {
   document.querySelectorAll('.feature-item').forEach(item => {
-    const row    = item.querySelector('.feature-row');
+    const row = item.querySelector('.feature-row');
     const expand = item.querySelector('.feature-expand');
     if (!row || !expand) return;
 
@@ -155,15 +155,15 @@ function initFeatureList() {
 function initServiceTilt() {
   document.querySelectorAll('.service-card').forEach(card => {
     card.addEventListener('mousemove', e => {
-      const r  = card.getBoundingClientRect();
-      const dx = (e.clientX - r.left  - r.width  / 2) / (r.width  / 2);
-      const dy = (e.clientY - r.top   - r.height / 2) / (r.height / 2);
+      const r = card.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2);
+      const dy = (e.clientY - r.top - r.height / 2) / (r.height / 2);
       card.style.transition = 'transform 0.1s linear, box-shadow 0.3s';
-      card.style.transform  = `translateY(-8px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
+      card.style.transform = `translateY(-8px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
     });
     card.addEventListener('mouseleave', () => {
       card.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s, border-color 0.3s';
-      card.style.transform  = '';
+      card.style.transform = '';
     });
   });
 }
