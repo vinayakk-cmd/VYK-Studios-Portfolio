@@ -1,3 +1,7 @@
+/* ============================================================
+   VYK STUDIOS — style.css
+   ============================================================ */
+
 :root {
   --black: #000000;
   --black-soft: #0a0a0a;
@@ -1619,35 +1623,35 @@ section {
 
   /* Why section */
   .why-section {
-    padding: 0 0 72px;
+    padding: 0 0 56px;
   }
 
   .feature-block {
-    padding: 32px 20px;
-    border-radius: var(--r-lg);
+    padding: 24px 16px;
+    border-radius: var(--r-md);
   }
 
   .feature-block-header {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
 
   .feature-block-title {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
   }
 
   .feature-row {
-    padding: 20px 8px;
-    gap: 16px;
+    padding: 16px 8px;
+    gap: 12px;
   }
 
   .feature-text {
-    font-size: 1rem;
+    font-size: 0.85rem;
   }
 
   .feature-expand p {
-    font-size: 0.86rem;
-    padding: 0 8px 20px 24px;
-    line-height: 1.5;
+    font-size: 0.75rem;
+    padding: 0 8px 16px 20px;
+    line-height: 1.4;
   }
 
   /* About */
@@ -1725,27 +1729,42 @@ section {
 
   /* Services */
   .services {
-    padding: 72px 0;
+    padding: 56px 0;
   }
 
   .services-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 
   .service-card {
-    padding: 28px 24px;
-    border-radius: var(--r-lg);
-    gap: 14px;
+    padding: 20px 14px;
+    border-radius: var(--r-md);
+    gap: 10px;
+  }
+
+  .service-icon-wrap {
+    width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
   }
 
   .service-card h3 {
-    font-size: 1.25rem;
+    font-size: 0.95rem;
   }
 
   .service-card p {
-    font-size: 0.85rem;
-    line-height: 1.5;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .service-tags {
+    gap: 4px;
+  }
+
+  .service-tags span {
+    font-size: 0.55rem;
+    padding: 3px 6px;
   }
 
   /* CTA */
