@@ -4,6 +4,7 @@
 const isMobile = () => window.matchMedia('(max-width: 600px)').matches || ('ontouchstart' in window);
 
 document.addEventListener('DOMContentLoaded', () => {
+  initAmbientBg();
   initNavbar();
   initMobileMenu();
   initSmoothScroll();
@@ -166,4 +167,111 @@ function initServiceTilt() {
       card.style.transform = '';
     });
   });
+}
+
+/* ── Ambient Background — particles + parallax orbs ── */
+function initAmbientBg() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  /* --- Particle canvas --- */
+  const canvas = document.getElementById('particleCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Fixed canvas: use window dimensions, not offsetWidth (which is 0 at init)
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const PARTICLE_COUNT = 80;
+  const particles = [];
+
+  function randBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function createParticle(fromBottom) {
+    return {
+      x:        randBetween(0, canvas.width),
+      y:        fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
+      r:        randBetween(1.0, 2.8),
+      speed:    randBetween(0.18, 0.55),
+      opacity:  0,
+      maxOp:    randBetween(0.18, 0.42),
+      phase:    randBetween(0, Math.PI * 2),
+      driftAmp: randBetween(0.15, 0.5),
+      life:     0,
+      maxLife:  randBetween(200, 480),
+    };
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const p = createParticle(false);
+    p.life = Math.floor(Math.random() * p.maxLife); // stagger starts
+    particles.push(p);
+  }
+
+  function tickParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const now = performance.now() * 0.001;
+
+    particles.forEach((p, i) => {
+      p.life++;
+
+      // Smooth fade in / out
+      const half = p.maxLife / 2;
+      p.opacity = p.life < half
+        ? (p.life / half) * p.maxOp
+        : ((p.maxLife - p.life) / half) * p.maxOp;
+
+      // Drift upward + sine sway
+      p.y -= p.speed;
+      p.x += Math.sin(now * 0.4 + p.phase) * p.driftAmp;
+
+      // Respawn at bottom when done
+      if (p.life >= p.maxLife || p.y < -10) {
+        particles[i] = createParticle(true);
+      }
+
+      // Draw — 70% green, 30% soft white
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.maxOp > 0.28
+        ? `rgba(44,255,122,${p.opacity})`
+        : `rgba(180,255,210,${p.opacity})`;
+      ctx.fill();
+    });
+  }
+
+  /* --- Parallax orbs on mouse move --- */
+  const orbs = [
+    { el: document.querySelector('.bg-orb-1'), fx: 0.04,  fy: 0.025 },
+    { el: document.querySelector('.bg-orb-2'), fx: -0.05, fy: 0.03  },
+    { el: document.querySelector('.bg-orb-3'), fx: 0.03,  fy: -0.04 },
+  ].filter(o => o.el);
+
+  let targetX = [0,0,0], targetY = [0,0,0];
+  let currentX = [0,0,0], currentY = [0,0,0];
+
+  window.addEventListener('mousemove', e => {
+    const mx = e.clientX - window.innerWidth  / 2;
+    const my = e.clientY - window.innerHeight / 2;
+    orbs.forEach((o, i) => {
+      targetX[i] = mx * o.fx;
+      targetY[i] = my * o.fy;
+    });
+  }, { passive: true });
+
+  /* --- Unified rAF loop --- */
+  function loop() {
+    tickParticles();
+    orbs.forEach((o, i) => {
+      currentX[i] += (targetX[i] - currentX[i]) * 0.05;
+      currentY[i] += (targetY[i] - currentY[i]) * 0.05;
+      o.el.style.transform = `translate(${currentX[i].toFixed(2)}px, ${currentY[i].toFixed(2)}px)`;
+    });
+    requestAnimationFrame(loop);
+  }
+  loop();
 }
