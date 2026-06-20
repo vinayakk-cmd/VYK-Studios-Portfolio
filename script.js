@@ -124,7 +124,7 @@ function initVideoGrid() {
     });
 
     video.addEventListener('pause', () => { overlay.style.opacity = '1'; });
-    video.addEventListener('play',  () => { overlay.style.opacity = '0'; });
+    video.addEventListener('play', () => { overlay.style.opacity = '0'; });
   });
 }
 
