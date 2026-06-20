@@ -79,6 +79,34 @@ function initVideoGrid() {
   const ICON_MUTED = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
   const ICON_SOUND = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
 
+  /* Collect all card/video pairs as we set up each vwrap */
+  const cards = [];
+
+  /* ── Smooth volume fade with optional completion callback ──
+     Cancels any in-progress fade on the same video, then ramps
+     volume using ease-in-out quad over `duration` ms.            */
+  function fadeVol(video, targetVol, duration, onDone) {
+    if (video._fadeRaf) { cancelAnimationFrame(video._fadeRaf); video._fadeRaf = null; }
+    const startVol = video.muted ? 0 : video.volume;
+    /* Unmute early so audio can ramp up from silence */
+    if (targetVol > 0 && video.muted) { video.muted = false; video.volume = 0; }
+    const startTime = performance.now();
+    function step(now) {
+      const t = Math.min((now - startTime) / duration, 1);
+      const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      video.volume = startVol + (targetVol - startVol) * ease;
+      if (t < 1) {
+        video._fadeRaf = requestAnimationFrame(step);
+      } else {
+        video.volume = targetVol;
+        video._fadeRaf = null;
+        if (targetVol === 0) video.muted = true;
+        if (onDone) onDone();
+      }
+    }
+    video._fadeRaf = requestAnimationFrame(step);
+  }
+
   document.querySelectorAll('.vwrap').forEach(wrap => {
     const video = wrap.querySelector('video');
     const overlay = wrap.querySelector('.voverlay');
@@ -94,10 +122,10 @@ function initVideoGrid() {
     const btn = document.createElement('button');
     btn.className = 'mute-btn';
     btn.setAttribute('aria-label', 'Toggle mute');
-    btn.innerHTML = ICON_MUTED;   /* starts muted */
+    btn.innerHTML = ICON_MUTED;
     wrap.appendChild(btn);
 
-    /* Toggle mute on button click (stop event reaching vwrap) */
+    /* Toggle mute on button click */
     btn.addEventListener('click', e => {
       e.stopPropagation();
       video.muted = !video.muted;
@@ -105,14 +133,14 @@ function initVideoGrid() {
       btn.classList.toggle('unmuted', !video.muted);
     });
 
-    /* Sync button if video.muted changes externally */
+    /* Sync button whenever mute/volume changes externally */
     video.addEventListener('volumechange', () => {
       const muted = video.muted || video.volume === 0;
       btn.innerHTML = muted ? ICON_MUTED : ICON_SOUND;
       btn.classList.toggle('unmuted', !muted);
     });
 
-    /* --- Play / pause on wrap click (not on the mute button) --- */
+    /* Play / pause on wrap click */
     if (!overlay) return;
     wrap.addEventListener('click', () => {
       if (video.paused) {
@@ -126,6 +154,61 @@ function initVideoGrid() {
 
     video.addEventListener('pause', () => { overlay.style.opacity = '1'; });
     video.addEventListener('play', () => { overlay.style.opacity = '0'; });
+
+    cards.push({ wrap, video });
+  });
+
+  /* ── Hover behaviour ──
+     • Enter a card → play + unmute (fade in) hovered video
+                    → pause + mute all others
+     • Leave all cards → resume playing + muted on every video
+     Touch/mobile devices have no real hover, so we skip entirely. */
+  if (isMobile()) return;
+
+  let leaveTimer = null;
+
+  document.querySelectorAll('.vcard').forEach(card => {
+    const wrap = card.querySelector('.vwrap');
+    const video = wrap && wrap.querySelector('video');
+    if (!video) return;
+
+    card.addEventListener('mouseenter', () => {
+      /* Cancel any pending restore-all timer */
+      if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
+
+      cards.forEach(({ video: v }) => {
+        if (v === video) {
+          /* Hovered — play and fade audio in */
+          if (v.paused) v.play().catch(() => { });
+          fadeVol(v, 1, 300);
+        } else {
+          /* All others — fade audio out then pause */
+          const audible = !v.muted && v.volume > 0.01;
+          if (audible) {
+            /* Was the previously-hovered video: smooth fade then pause */
+            fadeVol(v, 0, 240, () => { if (!v.paused) v.pause(); });
+          } else {
+            /* Already silent — pause immediately */
+            v.muted = true;
+            if (!v.paused) v.pause();
+          }
+        }
+      });
+    });
+
+    card.addEventListener('mouseleave', () => {
+      /* 80 ms grace period — if cursor enters another card within
+         this window the timer is cancelled and no blip occurs.     */
+      leaveTimer = setTimeout(() => {
+        leaveTimer = null;
+        /* Fade hovered video back to muted */
+        fadeVol(video, 0, 380);
+        /* Resume all other (paused) videos, they stay muted */
+        cards.forEach(({ video: v }) => {
+          if (v !== video && v.paused) v.play().catch(() => { });
+        });
+      }, 80);
+    });
   });
 }
 
@@ -136,7 +219,6 @@ function initFeatureList() {
     const expand = item.querySelector('.feature-expand');
     if (!row || !expand) return;
 
-    /* Wrap expand content in inner div if not already — needed for grid trick */
     if (!expand.querySelector('.feature-expand-inner')) {
       const inner = document.createElement('div');
       inner.className = 'feature-expand-inner';
@@ -173,14 +255,12 @@ function initServiceTilt() {
 function initAmbientBg() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  /* --- Particle canvas --- */
   const canvas = document.getElementById('particleCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
 
-  // Fixed canvas: use window dimensions, not offsetWidth (which is 0 at init)
   function resize() {
-    canvas.width  = window.innerWidth;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resize();
@@ -193,22 +273,22 @@ function initAmbientBg() {
 
   function createParticle(fromBottom) {
     return {
-      x:        randBetween(0, canvas.width),
-      y:        fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
-      r:        randBetween(1.0, 2.8),
-      speed:    randBetween(0.18, 0.55),
-      opacity:  0,
-      maxOp:    randBetween(0.18, 0.42),
-      phase:    randBetween(0, Math.PI * 2),
+      x: randBetween(0, canvas.width),
+      y: fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
+      r: randBetween(1.0, 2.8),
+      speed: randBetween(0.18, 0.55),
+      opacity: 0,
+      maxOp: randBetween(0.18, 0.42),
+      phase: randBetween(0, Math.PI * 2),
       driftAmp: randBetween(0.15, 0.5),
-      life:     0,
-      maxLife:  randBetween(200, 480),
+      life: 0,
+      maxLife: randBetween(200, 480),
     };
   }
 
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const p = createParticle(false);
-    p.life = Math.floor(Math.random() * p.maxLife); // stagger starts
+    p.life = Math.floor(Math.random() * p.maxLife);
     particles.push(p);
   }
 
@@ -218,23 +298,15 @@ function initAmbientBg() {
 
     particles.forEach((p, i) => {
       p.life++;
-
-      // Smooth fade in / out
       const half = p.maxLife / 2;
       p.opacity = p.life < half
         ? (p.life / half) * p.maxOp
         : ((p.maxLife - p.life) / half) * p.maxOp;
-
-      // Drift upward + sine sway
       p.y -= p.speed;
       p.x += Math.sin(now * 0.4 + p.phase) * p.driftAmp;
-
-      // Respawn at bottom when done
       if (p.life >= p.maxLife || p.y < -10) {
         particles[i] = createParticle(true);
       }
-
-      // Draw — 70% green, 30% soft white
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = p.maxOp > 0.28
@@ -244,18 +316,17 @@ function initAmbientBg() {
     });
   }
 
-  /* --- Parallax orbs on mouse move --- */
   const orbs = [
-    { el: document.querySelector('.bg-orb-1'), fx: 0.04,  fy: 0.025 },
-    { el: document.querySelector('.bg-orb-2'), fx: -0.05, fy: 0.03  },
-    { el: document.querySelector('.bg-orb-3'), fx: 0.03,  fy: -0.04 },
+    { el: document.querySelector('.bg-orb-1'), fx: 0.04, fy: 0.025 },
+    { el: document.querySelector('.bg-orb-2'), fx: -0.05, fy: 0.03 },
+    { el: document.querySelector('.bg-orb-3'), fx: 0.03, fy: -0.04 },
   ].filter(o => o.el);
 
-  let targetX = [0,0,0], targetY = [0,0,0];
-  let currentX = [0,0,0], currentY = [0,0,0];
+  let targetX = [0, 0, 0], targetY = [0, 0, 0];
+  let currentX = [0, 0, 0], currentY = [0, 0, 0];
 
   window.addEventListener('mousemove', e => {
-    const mx = e.clientX - window.innerWidth  / 2;
+    const mx = e.clientX - window.innerWidth / 2;
     const my = e.clientY - window.innerHeight / 2;
     orbs.forEach((o, i) => {
       targetX[i] = mx * o.fx;
@@ -263,7 +334,6 @@ function initAmbientBg() {
     });
   }, { passive: true });
 
-  /* --- Unified rAF loop --- */
   function loop() {
     tickParticles();
     orbs.forEach((o, i) => {
