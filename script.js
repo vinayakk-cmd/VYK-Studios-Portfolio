@@ -72,17 +72,17 @@ function initScrollReveal() {
   els.forEach(el => obs.observe(el));
 }
 
-/* ── Video grid: autoplay loop + play/pause click + mute/unmute button ── */
+/* ── Video grid: viewport-aware autoplay + play/pause click + mute/unmute ── */
 function initVideoGrid() {
 
   /* SVG icons */
   const ICON_MUTED = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
   const ICON_SOUND = `<svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
 
-  /* All card/video pairs — built while setting up each vwrap */
+  /* Registry of all video entries */
   const cards = [];
 
-  /* ── Smooth volume fade with optional completion callback ── */
+  /* ── Smooth volume fade ── */
   function fadeVol(video, targetVol, duration, onDone) {
     if (video._fadeRaf) { cancelAnimationFrame(video._fadeRaf); video._fadeRaf = null; }
     const startVol = video.muted ? 0 : video.volume;
@@ -104,19 +104,17 @@ function initVideoGrid() {
     video._fadeRaf = requestAnimationFrame(step);
   }
 
-  /* ── Shared focus/restore logic (used by both mouse & touch) ── */
+  /* ── Shared focus/restore logic ── */
   function applyFocus(focusedVideo) {
     cards.forEach(({ video: v }) => {
       if (v === focusedVideo) {
-        if (v.paused) v.play().catch(() => {});
+        if (v.paused) v.play().catch(() => { });
         fadeVol(v, 1, 300);
       } else {
         const audible = !v.muted && v.volume > 0.01;
         if (audible) {
-          /* Was the previously-focused video — fade out then pause */
           fadeVol(v, 0, 240, () => { if (!v.paused) v.pause(); });
         } else {
-          /* Already silent — pause immediately */
           v.muted = true;
           if (!v.paused) v.pause();
         }
@@ -125,11 +123,47 @@ function initVideoGrid() {
   }
 
   function restoreAll() {
-    cards.forEach(({ video: v }) => {
+    cards.forEach(({ video: v, inViewport }) => {
       fadeVol(v, 0, 380);
-      if (v.paused) v.play().catch(() => {});
+      /* Only resume if actually visible in viewport */
+      if (inViewport && v.paused) v.play().catch(() => { });
     });
   }
+
+  /* ════════════════════════════════════════════════════════════
+     VIEWPORT OBSERVER
+     Each .vwrap is observed. When ≥30% of it enters the
+     viewport the video plays; when it leaves it pauses.
+     This is the core performance fix — works on all devices.
+     ════════════════════════════════════════════════════════════ */
+  const viewportObs = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const wrap = entry.target;
+      const video = wrap.querySelector('video');
+      if (!video) return;
+
+      /* Find this card's entry in our registry and update flag */
+      const cardEntry = cards.find(c => c.wrap === wrap);
+
+      if (entry.isIntersecting) {
+        /* Entering viewport */
+        if (cardEntry) cardEntry.inViewport = true;
+        /* Only autoplay if video hasn't been manually paused by user click */
+        if (!video._userPaused) {
+          video.play().catch(() => { });
+        }
+      } else {
+        /* Leaving viewport */
+        if (cardEntry) cardEntry.inViewport = false;
+        /* Always pause when out of view, regardless of manual state */
+        if (!video.paused) video.pause();
+      }
+    });
+  }, {
+    /* Video must be at least 30% visible to start playing.
+       This prevents videos just peeking at the edge from firing. */
+    threshold: 0.3
+  });
 
   /* ── Per-vwrap setup ── */
   document.querySelectorAll('.vwrap').forEach(wrap => {
@@ -137,10 +171,17 @@ function initVideoGrid() {
     const overlay = wrap.querySelector('.voverlay');
     if (!video) return;
 
+    /* Initial state: muted, paused — viewport observer will start them */
     video.muted = true;
     video.loop = true;
     video.playsInline = true;
-    video.play().catch(() => {});
+    video._userPaused = false; /* tracks deliberate user pause */
+
+    /* Register with viewport observer */
+    viewportObs.observe(wrap);
+
+    /* Track in cards array */
+    cards.push({ wrap, video, inViewport: false });
 
     /* Mute button */
     const btn = document.createElement('button');
@@ -166,79 +207,75 @@ function initVideoGrid() {
     if (!overlay) return;
     wrap.addEventListener('click', () => {
       if (video.paused) {
-        video.play();
+        video._userPaused = false;
+        video.play().catch(() => { });
         overlay.style.opacity = '0';
       } else {
+        video._userPaused = true; /* mark deliberate pause so viewport won't re-start it */
         video.pause();
         overlay.style.opacity = '1';
       }
     });
 
     video.addEventListener('pause', () => { overlay.style.opacity = '1'; });
-    video.addEventListener('play',  () => { overlay.style.opacity = '0'; });
-
-    cards.push({ wrap, video });
+    video.addEventListener('play', () => { overlay.style.opacity = '0'; });
   });
 
   /* ══════════════════════════════════════════════════════════
-     DESKTOP — mouseenter / mouseleave
+     DESKTOP — mouseenter / mouseleave (hover-to-unmute)
      ══════════════════════════════════════════════════════════ */
   let leaveTimer = null;
 
   document.querySelectorAll('.vcard').forEach(card => {
-    const wrap  = card.querySelector('.vwrap');
+    const wrap = card.querySelector('.vwrap');
     const video = wrap && wrap.querySelector('video');
     if (!video) return;
 
     card.addEventListener('mouseenter', () => {
       if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; }
-      applyFocus(video);
+      /* Only unmute/focus if the video is actually in viewport */
+      const entry = cards.find(c => c.video === video);
+      if (entry && entry.inViewport) applyFocus(video);
     });
 
     card.addEventListener('mouseleave', () => {
-      /* 80 ms grace: moving between cards cancels this before it fires */
       leaveTimer = setTimeout(() => { leaveTimer = null; restoreAll(); }, 80);
     });
   });
 
   /* ══════════════════════════════════════════════════════════
      MOBILE — touch tap focus
-     Tap a NEW card  → focus it (play + unmute), pause others
-     Tap SAME card   → pass through to the click play/pause
-     Tap outside     → restore all to playing + muted
-
-     Scroll detection: if the finger moves > 8 px before lifting
-     we treat it as a scroll and do nothing.
      ══════════════════════════════════════════════════════════ */
   let touchActiveVideo = null;
 
   document.querySelectorAll('.vcard').forEach(card => {
-    const wrap  = card.querySelector('.vwrap');
+    const wrap = card.querySelector('.vwrap');
     const video = wrap && wrap.querySelector('video');
     if (!video) return;
 
     let startX = 0, startY = 0, didScroll = false;
 
     card.addEventListener('touchstart', e => {
-      startX    = e.touches[0].clientX;
-      startY    = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
       didScroll = false;
     }, { passive: true });
 
     card.addEventListener('touchmove', e => {
       if (Math.abs(e.touches[0].clientX - startX) > 8 ||
-          Math.abs(e.touches[0].clientY - startY) > 8) {
+        Math.abs(e.touches[0].clientY - startY) > 8) {
         didScroll = true;
       }
     }, { passive: true });
 
     card.addEventListener('touchend', e => {
-      if (didScroll) return;               /* finger scrolled — ignore        */
-      if (touchActiveVideo === video) return; /* same card — let click fire   */
+      if (didScroll) return;
+      if (touchActiveVideo === video) return;
 
-      e.preventDefault();                  /* stop ghost click on card change */
+      e.preventDefault();
       touchActiveVideo = video;
-      applyFocus(video);
+      const entry = cards.find(c => c.video === video);
+      if (entry && entry.inViewport) applyFocus(video);
     }, { passive: false });
   });
 
@@ -255,7 +292,7 @@ function initVideoGrid() {
 /* ── Feature list accordion ── */
 function initFeatureList() {
   document.querySelectorAll('.feature-item').forEach(item => {
-    const row    = item.querySelector('.feature-row');
+    const row = item.querySelector('.feature-row');
     const expand = item.querySelector('.feature-expand');
     if (!row || !expand) return;
 
@@ -278,15 +315,15 @@ function initFeatureList() {
 function initServiceTilt() {
   document.querySelectorAll('.service-card').forEach(card => {
     card.addEventListener('mousemove', e => {
-      const r  = card.getBoundingClientRect();
-      const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
-      const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+      const r = card.getBoundingClientRect();
+      const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2);
+      const dy = (e.clientY - r.top - r.height / 2) / (r.height / 2);
       card.style.transition = 'transform 0.1s linear, box-shadow 0.3s';
-      card.style.transform  = `translateY(-8px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
+      card.style.transform = `translateY(-8px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
     });
     card.addEventListener('mouseleave', () => {
       card.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s, border-color 0.3s';
-      card.style.transform  = '';
+      card.style.transform = '';
     });
   });
 }
@@ -300,7 +337,7 @@ function initAmbientBg() {
   const ctx = canvas.getContext('2d');
 
   function resize() {
-    canvas.width  = window.innerWidth;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resize();
@@ -313,16 +350,16 @@ function initAmbientBg() {
 
   function createParticle(fromBottom) {
     return {
-      x:        randBetween(0, canvas.width),
-      y:        fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
-      r:        randBetween(1.0, 2.8),
-      speed:    randBetween(0.18, 0.55),
-      opacity:  0,
-      maxOp:    randBetween(0.18, 0.42),
-      phase:    randBetween(0, Math.PI * 2),
+      x: randBetween(0, canvas.width),
+      y: fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
+      r: randBetween(1.0, 2.8),
+      speed: randBetween(0.18, 0.55),
+      opacity: 0,
+      maxOp: randBetween(0.18, 0.42),
+      phase: randBetween(0, Math.PI * 2),
       driftAmp: randBetween(0.15, 0.5),
-      life:     0,
-      maxLife:  randBetween(200, 480),
+      life: 0,
+      maxLife: randBetween(200, 480),
     };
   }
 
@@ -339,7 +376,7 @@ function initAmbientBg() {
     particles.forEach((p, i) => {
       p.life++;
       const half = p.maxLife / 2;
-      p.opacity  = p.life < half
+      p.opacity = p.life < half
         ? (p.life / half) * p.maxOp
         : ((p.maxLife - p.life) / half) * p.maxOp;
       p.y -= p.speed;
@@ -356,16 +393,16 @@ function initAmbientBg() {
   }
 
   const orbs = [
-    { el: document.querySelector('.bg-orb-1'), fx:  0.04, fy:  0.025 },
-    { el: document.querySelector('.bg-orb-2'), fx: -0.05, fy:  0.03  },
-    { el: document.querySelector('.bg-orb-3'), fx:  0.03, fy: -0.04  },
+    { el: document.querySelector('.bg-orb-1'), fx: 0.04, fy: 0.025 },
+    { el: document.querySelector('.bg-orb-2'), fx: -0.05, fy: 0.03 },
+    { el: document.querySelector('.bg-orb-3'), fx: 0.03, fy: -0.04 },
   ].filter(o => o.el);
 
-  let targetX  = [0, 0, 0], targetY  = [0, 0, 0];
+  let targetX = [0, 0, 0], targetY = [0, 0, 0];
   let currentX = [0, 0, 0], currentY = [0, 0, 0];
 
   window.addEventListener('mousemove', e => {
-    const mx = e.clientX - window.innerWidth  / 2;
+    const mx = e.clientX - window.innerWidth / 2;
     const my = e.clientY - window.innerHeight / 2;
     orbs.forEach((o, i) => { targetX[i] = mx * o.fx; targetY[i] = my * o.fy; });
   }, { passive: true });
