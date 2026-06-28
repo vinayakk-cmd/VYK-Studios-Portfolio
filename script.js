@@ -313,15 +313,21 @@ function initFeatureList() {
 
 /* ── Service cards 3D tilt ── */
 function initServiceTilt() {
-  document.querySelectorAll('.service-card').forEach(card => {
+  document.querySelectorAll('.service-card, .testimonial-card').forEach(card => {
+    let r = null;
+    card.addEventListener('mouseenter', () => {
+      r = card.getBoundingClientRect();
+    });
     card.addEventListener('mousemove', e => {
-      const r = card.getBoundingClientRect();
+      if (!r) r = card.getBoundingClientRect();
       const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2);
       const dy = (e.clientY - r.top - r.height / 2) / (r.height / 2);
+      const yOffset = card.classList.contains('testimonial-card') ? -6 : -8;
       card.style.transition = 'transform 0.1s linear, box-shadow 0.3s';
-      card.style.transform = `translateY(-8px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
+      card.style.transform = `translateY(${yOffset}px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
     });
     card.addEventListener('mouseleave', () => {
+      r = null;
       card.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s, border-color 0.3s';
       card.style.transform = '';
     });
@@ -343,7 +349,7 @@ function initAmbientBg() {
   resize();
   window.addEventListener('resize', resize, { passive: true });
 
-  const PARTICLE_COUNT = 80;
+  const PARTICLE_COUNT = isMobile() ? 20 : 50;
   const particles = [];
 
   function randBetween(a, b) { return a + Math.random() * (b - a); }
@@ -401,19 +407,29 @@ function initAmbientBg() {
   let targetX = [0, 0, 0], targetY = [0, 0, 0];
   let currentX = [0, 0, 0], currentY = [0, 0, 0];
 
-  window.addEventListener('mousemove', e => {
-    const mx = e.clientX - window.innerWidth / 2;
-    const my = e.clientY - window.innerHeight / 2;
-    orbs.forEach((o, i) => { targetX[i] = mx * o.fx; targetY[i] = my * o.fy; });
-  }, { passive: true });
+  const mobile = isMobile();
+
+  if (!mobile) {
+    window.addEventListener('mousemove', e => {
+      const mx = e.clientX - window.innerWidth / 2;
+      const my = e.clientY - window.innerHeight / 2;
+      orbs.forEach((o, i) => { targetX[i] = mx * o.fx; targetY[i] = my * o.fy; });
+    }, { passive: true });
+  }
 
   function loop() {
     tickParticles();
-    orbs.forEach((o, i) => {
-      currentX[i] += (targetX[i] - currentX[i]) * 0.05;
-      currentY[i] += (targetY[i] - currentY[i]) * 0.05;
-      o.el.style.transform = `translate(${currentX[i].toFixed(2)}px, ${currentY[i].toFixed(2)}px)`;
-    });
+    if (!mobile) {
+      orbs.forEach((o, i) => {
+        const dx = targetX[i] - currentX[i];
+        const dy = targetY[i] - currentY[i];
+        if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+          currentX[i] += dx * 0.05;
+          currentY[i] += dy * 0.05;
+          o.el.style.transform = `translate3d(${currentX[i].toFixed(2)}px, ${currentY[i].toFixed(2)}px, 0)`;
+        }
+      });
+    }
     requestAnimationFrame(loop);
   }
   loop();
