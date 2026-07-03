@@ -1152,6 +1152,7 @@ section:not(.hero) {
   /* animation set via JS so we can base duration on content width */
   animation: tmsScroll 32s linear infinite;
   will-change: transform;
+  transform-style: preserve-3d;
 }
 
 .tms-track:hover {
@@ -1189,6 +1190,9 @@ section:not(.hero) {
   gap: 14px;
   transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s var(--ease-spring);
   cursor: default;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
 }
 
 .tms-card:hover {
@@ -2032,3 +2036,4 @@ section:not(.hero) {
     padding: 12px 8px;
   }
 }
+
