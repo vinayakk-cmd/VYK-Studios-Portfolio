@@ -1,7 +1,7 @@
 'use strict';
 
 /* Detect touch/mobile once */
-const isMobile = () => window.matchMedia('(max-width: 600px)').matches || ('ontouchstart' in window);
+const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 
 document.addEventListener('DOMContentLoaded', () => {
   initAmbientBg();
@@ -275,16 +275,16 @@ function initFeatureList() {
 
 /* ── Service cards 3D tilt ── */
 function initServiceTilt() {
-  document.querySelectorAll('.service-card, .testimonial-card').forEach(card => {
+  document.querySelectorAll('.service-card, .tms-card').forEach(card => {
     let r = null;
     card.addEventListener('mouseenter', () => { r = card.getBoundingClientRect(); });
     card.addEventListener('mousemove', e => {
       if (!r) r = card.getBoundingClientRect();
       const dx = (e.clientX - r.left - r.width / 2) / (r.width / 2);
       const dy = (e.clientY - r.top - r.height / 2) / (r.height / 2);
-      const yOffset = card.classList.contains('testimonial-card') ? -6 : -8;
-      card.style.transition = 'transform 0.1s linear, box-shadow 0.3s';
-      card.style.transform = `translateY(${yOffset}px) rotateX(${-dy * 7}deg) rotateY(${dx * 7}deg)`;
+      const yOffset = card.classList.contains('tms-card') ? -6 : -8;
+      card.style.transition = 'transform 0.1s linear, box-shadow 0.3s, border-color 0.3s';
+      card.style.transform = `perspective(1000px) translateY(${yOffset}px) rotateX(${-dy * 7}deg) rotateY(${-dx * 7}deg)`;
     });
     card.addEventListener('mouseleave', () => {
       r = null;
@@ -355,8 +355,8 @@ function initAmbientBg() {
     { el: document.querySelector('.bg-orb-3'), fx: 0.03, fy: -0.04 },
   ].filter(o => o.el);
 
-  let targetX = [0,0,0], targetY = [0,0,0];
-  let currentX = [0,0,0], currentY = [0,0,0];
+  let targetX = [0, 0, 0], targetY = [0, 0, 0];
+  let currentX = [0, 0, 0], currentY = [0, 0, 0];
   const mobile = isMobile();
 
   if (!mobile) {
@@ -384,3 +384,4 @@ function initAmbientBg() {
   }
   loop();
 }
+
