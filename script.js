@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initSmoothScroll();
     initScrollReveal();
+    initHeroVideo();
     initVideoGrid();
     initFeatureList();
     initTestimonialsMarquee();
@@ -113,6 +114,34 @@ function initTestimonialsMarquee() {
     }
 
     s`;
+}
+
+/* ── Hero background video: autoplay w/ graceful poster fallback ── */
+function initHeroVideo() {
+    const hero = document.getElementById('hero');
+    const video = document.getElementById('heroVideo');
+    if (!hero || !video) return;
+
+    /* If autoplay is blocked (some mobile browsers, low-power mode, data
+       saver, etc.) the video simply stays paused and its poster frame
+       keeps showing — no extra handling needed beyond swallowing the
+       rejected promise so it doesn't spam the console. */
+    const tryPlay = () => video.play().catch(() => { });
+    tryPlay();
+
+    /* Pause while the hero is scrolled out of view to save battery/CPU,
+       resume when it's back — mirrors the behaviour of the portfolio
+       video grid below. */
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) tryPlay();
+            else video.pause();
+        });
+    }, {
+        threshold: 0.15
+    });
+
+    obs.observe(hero);
 }
 
 /* ── Video grid: viewport-aware autoplay + play/pause click + mute/unmute ── */
@@ -542,78 +571,9 @@ function initServiceTilt() {
     });
 }
 
-/* ── Ambient Background — particles + parallax orbs ── */
+/* ── Ambient Background — parallax orbs ── */
 function initAmbientBg() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    const canvas = document.getElementById('particleCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-
-    resize();
-
-    window.addEventListener('resize', resize, {
-        passive: true
-    });
-
-    const PARTICLE_COUNT = isMobile() ? 20 : 50;
-    const particles = [];
-
-    function randBetween(a, b) {
-        return a + Math.random() * (b - a);
-    }
-
-    function createParticle(fromBottom) {
-        return {
-            x: randBetween(0, canvas.width),
-            y: fromBottom ? canvas.height + randBetween(0, 40) : randBetween(0, canvas.height),
-            r: randBetween(1.0, 2.8),
-            speed: randBetween(0.18, 0.55),
-            opacity: 0,
-            maxOp: randBetween(0.18, 0.42),
-            phase: randBetween(0, Math.PI * 2),
-            driftAmp: randBetween(0.15, 0.5),
-            life: 0,
-            maxLife: randBetween(200, 480),
-        }
-
-            ;
-    }
-
-    for (let i = 0; i < PARTICLE_COUNT; i++) {
-        const p = createParticle(false);
-        p.life = Math.floor(Math.random() * p.maxLife);
-        particles.push(p);
-    }
-
-    function tickParticles() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const now = performance.now() * 0.001;
-
-        particles.forEach((p, i) => {
-            p.life++;
-            const half = p.maxLife / 2;
-            p.opacity = p.life < half ? (p.life / half) * p.maxOp : ((p.maxLife - p.life) / half) * p.maxOp;
-            p.y -= p.speed;
-            p.x += Math.sin(now * 0.4 + p.phase) * p.driftAmp;
-            if (p.life >= p.maxLife || p.y < -10) particles[i] = createParticle(true);
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-
-            ctx.fillStyle = p.maxOp > 0.28 ? `rgba(44, 255, 122, $ {
-                    p.opacity
-
-                })` : `rgba(180, 255, 210, $ {
-                    p.opacity
-                })`;
-            ctx.fill();
-        });
-    }
 
     const orbs = [{
         el: document.querySelector('.bg-orb-1'), fx: 0.04, fy: 0.025
@@ -662,32 +622,22 @@ function initAmbientBg() {
     }
 
     function loop() {
-        tickParticles();
+        orbs.forEach((o, i) => {
+            const dx = targetX[i] - currentX[i];
+            const dy = targetY[i] - currentY[i];
 
-        if (!mobile) {
-            orbs.forEach((o, i) => {
-                const dx = targetX[i] - currentX[i];
-                const dy = targetY[i] - currentY[i];
+            if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
+                currentX[i] += dx * 0.05;
+                currentY[i] += dy * 0.05;
 
-                if (Math.abs(dx) > 0.01 || Math.abs(dy) > 0.01) {
-                    currentX[i] += dx * 0.05;
-                    currentY[i] += dy * 0.05;
-
-                    o.el.style.transform = `translate3d($ {
-                            currentX[i].toFixed(2)
-                        }
-
-                        px, $ {
-                            currentY[i].toFixed(2)
-                        }
-
-                        px, 0)`;
-                }
-            });
-        }
+                o.el.style.transform = `translate3d(${currentX[i].toFixed(2)}px, ${currentY[i].toFixed(2)}px, 0)`;
+            }
+        });
 
         requestAnimationFrame(loop);
     }
 
-    loop();
+    /* Mobile never sets a mousemove target, so there's nothing to
+       animate — skip the RAF loop entirely to save battery. */
+    if (!mobile) loop();
 }
