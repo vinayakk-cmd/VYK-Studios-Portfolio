@@ -641,3 +641,4 @@ function initAmbientBg() {
        animate — skip the RAF loop entirely to save battery. */
     if (!mobile) loop();
 }
+
