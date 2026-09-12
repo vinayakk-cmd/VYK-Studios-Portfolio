@@ -655,6 +655,14 @@ section:not(.hero) {
     max-width: 260px;
 }
 
+/* Desktop only: 3 per row instead of 4 (tablet/mobile breakpoints below are untouched) */
+@media (min-width: 901px) {
+    .vgrid-vertical .vcard {
+        flex-basis: 300px;
+        max-width: 300px;
+    }
+}
+
 
 .vcard {
     background: var(--black-lift);
